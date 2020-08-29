@@ -147,12 +147,225 @@ namespace Api
 ### Interface and Repository
  - In Data Folder, Make:
   - `IBulletinRepository.cs`
+```cs
+using Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Api.Data
+{
+    public interface IBulletinRepository 
+    {
+        Task<IEnumerable<Bulletin>> GetBulletins();
+        Task<Bulletin> GetBulletin(int id);
+        Task<Bulletin> AddBulletin(Bulletin bulletin);
+        Task<Bulletin> UpdateBulletin(Bulletin bulletin);
+        Task<Bulletin> DeleteBulletin(int id);
+    }
+}
+```
   - `BullentinRepository.cs`
+```cs
+using Models;
+using System;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Api.Data
+{
+    public class BulletinRepository : IBulletinRepository
+    {
+        private readonly AppDbContext appDbContext;
+
+        public BulletinRepository(AppDbContext appDbContext)
+        {
+            this.appDbContext = appDbContext;
+        }
+
+        public async Task<IEnumerable<Bulletin>> GetBulletins()
+        {
+            return await appDbContext.Bulletins.ToListAsync();
+        }
+
+        public async Task<Bulletin> GetBulletin(int bulletinId)
+        {
+            return await appDbContext.Bulletins
+                .FirstOrDefaultAsync(e => e.Id == bulletinId);
+        }
+
+        public async Task<Bulletin> AddBulletin(Bulletin Bulletin)
+        {
+            var result = await appDbContext.Bulletins.AddAsync(Bulletin);
+            await appDbContext.SaveChangesAsync();
+            return result.Entity;
+        }
+
+        public async Task<Bulletin> UpdateBulletin(Bulletin Bulletin)
+        {
+            var result = await appDbContext.Bulletins
+                .FirstOrDefaultAsync(e => e.Id == Bulletin.Id);
+
+            if (result != null)
+            {
+                result.Id = Bulletin.Id;
+                result.HeadingText = Bulletin.HeadingText;
+                result.Status = Bulletin.Status;
+                await appDbContext.SaveChangesAsync();
+                return result;
+            }
+            return null;
+        }
+
+        
+        public async Task<Bulletin> DeleteBulletin(int bulletinId)
+        {
+            var result = await appDbContext.Bulletins
+                .FirstOrDefaultAsync(e => e.Id == bulletinId);
+            if (result != null)
+            {
+                appDbContext.Bulletins.Remove(result);
+                await appDbContext.SaveChangesAsync();
+                return result;
+            }
+            return null;
+        }
+    }
+}
+```
 
 ### Add Links to Startup.cs
 `services.AddScoped<IBulletinRepository, BulletinRepository>();` 
 
 ### Add Controllers
+- `BulletinController`
+```cs
+using System;
+using Models;
+using Api.Data;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+
+namespace Api.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class BulletinsController : ControllerBase
+    {
+        private readonly IBulletinRepository bulletinRepository;
+
+        public BulletinsController(IBulletinRepository bulletinRepository)
+        {
+            this.bulletinRepository = bulletinRepository;
+        }
+        
+        [HttpGet]
+        public async Task<ActionResult> GetBulletins()
+        {
+            try
+            {
+                return Ok(await bulletinRepository.GetBulletins());
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+					"Error retrieving data from the database");
+            }
+        }
+    
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Bulletin>> GetBulletin(int id)
+        {
+            try
+            {
+                var result = await bulletinRepository.GetBulletin(id);
+
+                if (result == null) return NotFound();
+
+                return result;
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error retrieving data from the database");
+            }
+        }
+    
+        [HttpPost]
+        public async Task<ActionResult<Bulletin>> CreateBulletin(Bulletin bulletin)
+        {
+            try
+            {
+                if (bulletin == null)
+                    return BadRequest();
+
+                // add user data
+                // bulletin.CreatedBy = Cookie;
+                // add datetime
+                bulletin.CreatedAt = DateTime.Now;
+
+                var createdBulletin = await bulletinRepository.AddBulletin(bulletin);
+
+                return CreatedAtAction(nameof(GetBulletin),
+                    new { id = createdBulletin.Id }, createdBulletin);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error creating new bulletin record");
+            }
+        }
+    
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<Bulletin>> UpdateBulletin(int id, Bulletin bulletin)
+        {
+            try
+            {
+                if (id != bulletin.Id)
+                    return BadRequest("Bulletin ID mismatch");
+
+                var bulletinToUpdate = await bulletinRepository.GetBulletin(id);
+
+                if (bulletinToUpdate == null)
+                    return NotFound($"Bulletin with Id = {id} not found");
+
+                return await bulletinRepository.UpdateBulletin(bulletin);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error updating data");
+            }
+        }
+    
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult<Bulletin>> DeleteBulletin(int id)
+        {
+            try
+            {
+                var bulletinToDelete = await bulletinRepository.GetBulletin(id);
+
+                if (bulletinToDelete == null)
+                {
+                    return NotFound($"Bulletin with Id = {id} not found");
+                }
+
+                return await bulletinRepository.DeleteBulletin(id);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error deleting data");
+            }
+        }
+    }
+}
+
+```
 
 
 ### Add Validation
