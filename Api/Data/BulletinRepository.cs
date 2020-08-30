@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Api.Data
 {
@@ -17,7 +18,11 @@ namespace Api.Data
 
         public async Task<IEnumerable<Bulletin>> GetBulletins()
         {
-            return await appDbContext.Bulletins.ToListAsync();
+            IQueryable<Bulletin> query = appDbContext.Bulletins;
+            query = query.OrderByDescending(item => item.CreatedAt).Where(e => e.Status == Status.Active);
+
+            return await query.ToListAsync();
+            // return await appDbContext.Bulletins.ToListAsync();
         }
 
         public async Task<Bulletin> GetBulletin(int bulletinId)
