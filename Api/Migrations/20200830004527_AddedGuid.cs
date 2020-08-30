@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Api.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class AddedGuid : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -11,12 +11,11 @@ namespace Api.Migrations
                 name: "Bulletins",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(nullable: false),
                     CreatedBy = table.Column<int>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false),
-                    HeadingText = table.Column<string>(nullable: true),
-                    Content = table.Column<string>(nullable: true),
+                    HeadingText = table.Column<string>(nullable: false),
+                    Content = table.Column<string>(nullable: false),
                     Status = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -27,7 +26,7 @@ namespace Api.Migrations
             migrationBuilder.InsertData(
                 table: "Bulletins",
                 columns: new[] { "Id", "Content", "CreatedAt", "CreatedBy", "HeadingText", "Status" },
-                values: new object[] { 1, "This is the Content of the Bulletin", new DateTime(2020, 8, 30, 2, 41, 50, 563, DateTimeKind.Local).AddTicks(1682), 1, "Bulletin Header", 0 });
+                values: new object[] { new Guid("24f495ca-ea5f-4a96-b7ce-c46c031a0682"), "This is the Content of the Bulletin", new DateTime(2020, 8, 30, 5, 45, 27, 22, DateTimeKind.Local).AddTicks(9990), 1, "Bulletin Header", 0 });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

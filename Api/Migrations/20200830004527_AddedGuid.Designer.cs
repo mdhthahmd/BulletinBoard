@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20200829214150_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20200830004527_AddedGuid")]
+    partial class AddedGuid
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,12 +23,12 @@ namespace Api.Migrations
 
             modelBuilder.Entity("Models.Bulletin", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -38,6 +38,7 @@ namespace Api.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("HeadingText")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
@@ -50,9 +51,9 @@ namespace Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            Id = new Guid("24f495ca-ea5f-4a96-b7ce-c46c031a0682"),
                             Content = "This is the Content of the Bulletin",
-                            CreatedAt = new DateTime(2020, 8, 30, 2, 41, 50, 563, DateTimeKind.Local).AddTicks(1682),
+                            CreatedAt = new DateTime(2020, 8, 30, 5, 45, 27, 22, DateTimeKind.Local).AddTicks(9990),
                             CreatedBy = 1,
                             HeadingText = "Bulletin Header",
                             Status = 0

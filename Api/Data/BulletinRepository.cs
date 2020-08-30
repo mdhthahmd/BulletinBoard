@@ -25,7 +25,7 @@ namespace Api.Data
             // return await appDbContext.Bulletins.ToListAsync();
         }
 
-        public async Task<Bulletin> GetBulletin(int bulletinId)
+        public async Task<Bulletin> GetBulletin(Guid bulletinId)
         {
             return await appDbContext.Bulletins
                 .FirstOrDefaultAsync(e => e.Id == bulletinId);
@@ -55,7 +55,7 @@ namespace Api.Data
         }
 
         
-        public async Task<Bulletin> DeleteBulletin(int bulletinId)
+        public async Task<Bulletin> DeleteBulletin(Guid bulletinId)
         {
             var result = await appDbContext.Bulletins
                 .FirstOrDefaultAsync(e => e.Id == bulletinId);

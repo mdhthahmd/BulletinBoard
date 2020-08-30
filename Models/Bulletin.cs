@@ -5,7 +5,7 @@ namespace Models
 {
     public class Bulletin
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public int CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
         [Required]

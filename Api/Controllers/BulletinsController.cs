@@ -35,8 +35,8 @@ namespace Api.Controllers
             }
         }
     
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<Bulletin>> GetBulletin(int id)
+        [HttpGet("{id:Guid}")]
+        public async Task<ActionResult<Bulletin>> GetBulletin(Guid id)
         {
             try
             {
@@ -78,8 +78,8 @@ namespace Api.Controllers
             }
         }
     
-        [HttpPut("{id:int}")]
-        public async Task<ActionResult<Bulletin>> UpdateBulletin(int id, Bulletin bulletin)
+        [HttpPut("{id:Guid}")]
+        public async Task<ActionResult<Bulletin>> UpdateBulletin(Guid id, Bulletin bulletin)
         {
             try
             {
@@ -100,8 +100,8 @@ namespace Api.Controllers
             }
         }
     
-        [HttpDelete("{id:int}")]
-        public async Task<ActionResult<Bulletin>> DeleteBulletin(int id)
+        [HttpDelete("{id:Guid}")]
+        public async Task<ActionResult<Bulletin>> DeleteBulletin(Guid id)
         {
             try
             {

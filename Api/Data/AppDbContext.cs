@@ -18,7 +18,7 @@ namespace Api.Data
             base.OnModelCreating(modelBuilder);
 
              modelBuilder.Entity<Bulletin>().HasData( new Bulletin {  
-                Id = 1,
+                Id =  Guid.NewGuid(),
                 CreatedBy = 1,
                 CreatedAt = DateTime.Now,
                 HeadingText = "Bulletin Header",
